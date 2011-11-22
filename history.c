@@ -463,18 +463,25 @@ static int history_test( const wchar_t *needle, const wchar_t *haystack )
 */
 static wchar_t *history_filename( void *context, const wchar_t *name, const wchar_t *suffix )
 {
-	wchar_t *path;
+	char *env;
 	wchar_t *res;
 
 	if( !current_mode )
 		return 0;
 
-	path = path_get_config( context );
+	if( env = getenv( "FISH_HISTORY" ) )
+	{
+		res = str2wcs( env );
+	}
+	else
+	{
+		wchar_t *path = path_get_config( context );
 
-	if( !path )
-		return 0;
+		if( !path )
+			return 0;
 
-	res = wcsdupcat( path, L"/", name, L"_history", suffix?suffix:(void *)0);
+		res = wcsdupcat( path, L"/", name, L"_history", suffix?suffix:(void *)0);
+	}
 	halloc_register_function( context, &free, res );
 	return res;
 }
